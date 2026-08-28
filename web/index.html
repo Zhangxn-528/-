@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#F5F7FA" />
+  <title>巅峰赛助手</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- 注册页 -->
+  <div id="page-onboard" class="page onboard hidden">
+    <div class="onboard-inner">
+      <div class="logo">⚔</div>
+      <h1 class="app-title">巅峰赛助手</h1>
+      <p class="app-sub">以周二至周一为一个对局周期，<br>判定胜者组 / 败者组，辅助你决策今日是否继续对局。</p>
+      <div class="card">
+        <label class="label">你的游戏昵称</label>
+        <input id="onboard-nickname" class="input" type="text" maxlength="12" placeholder="输入昵称，例如：守夜人" autocomplete="off" />
+        <label class="label" style="margin-top:14px">当前巅峰赛分数</label>
+        <input id="onboard-score" class="input" type="number" inputmode="numeric" placeholder="例如：1500" autocomplete="off" />
+        <label class="label" style="margin-top:14px">本周期望上分</label>
+        <input id="onboard-weektarget" class="input" type="number" inputmode="numeric" placeholder="例如：50（留空则不设置）" autocomplete="off" />
+        <button id="onboard-btn" class="btn btn-primary btn-block">创建账号</button>
+        <p class="tip">所有数据仅保存在本机浏览器中，不会上传至任何服务器。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 主应用 -->
+  <div id="app" class="app hidden">
+    <!-- 首页：今日对局 -->
+    <div id="view-home" class="view">
+      <div class="topbar">
+        <div class="topbar-left">
+          <div class="nickname" id="home-nickname">—</div>
+          <div class="score-line">
+            <span class="score-big" id="home-score">0</span>
+            <span class="score-unit">巅峰分</span>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div class="week-progress">
+            <div class="week-label">本周累计</div>
+            <div class="week-val" id="home-week-total">+0</div>
+            <div class="week-goal" id="home-week-goal">目标 —</div>
+            <div class="week-progress-bar" id="home-week-bar"><div class="week-progress-fill" id="home-week-fill" style="width:0%"></div></div>
+          </div>
+          <div class="today-badge" id="home-day-badge">—</div>
+        </div>
+      </div>
+
+      <div class="card period-card" id="period-card">
+        <div class="period-title" id="period-title">—</div>
+        <div class="period-desc" id="period-desc">—</div>
+      </div>
+
+      <div id="rule-alert" class="rule-alert hidden">
+        <span class="rule-alert-icon">⚠</span>
+        <span class="rule-alert-text" id="rule-alert-text"></span>
+        <button id="rule-skip-btn" class="rule-alert-skip">忽略并继续</button>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>今日对局</h2>
+          <span class="day-of-week" id="game-day">—</span>
+        </div>
+        <div id="games-area" class="games-area"></div>
+        <div id="verdict-box" class="verdict-box hidden"></div>
+        <div class="score-entry">
+          <div class="score-entry-row">
+            <div class="score-entry-item">
+              <label>今日总变化（必填）</label>
+              <div class="score-input-wrap">
+                <input id="total-change" class="input score-input" type="number" inputmode="numeric" placeholder="如 48 或 -25" />
+                <span class="score-input-unit">分</span>
+              </div>
+            </div>
+          </div>
+          <p class="tip">仅需填写当日总分变化，不强制逐把填写。</p>
+        </div>
+        <button id="save-today-btn" class="btn btn-primary btn-block">保存今日战绩</button>
+      </div>
+
+      <div class="card" id="tomorrow-card">
+        <div class="card-head"><h2>明日建议</h2></div>
+        <div id="tomorrow-body" class="tomorrow-body">—</div>
+      </div>
+    </div>
+
+    <!-- 日历 -->
+    <div id="view-calendar" class="view hidden">
+      <div class="cal-header">
+        <button class="cal-nav" id="cal-prev">‹</button>
+        <div class="cal-title" id="cal-title">2026 第 35 周</div>
+        <button class="cal-nav" id="cal-next">›</button>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <div class="cal-legend">
+        <span class="legend-item"><i class="dot dot-up"></i>上分</span>
+        <span class="legend-item"><i class="dot dot-down"></i>掉分</span>
+        <span class="legend-item"><i class="dot dot-rest"></i>休息</span>
+        <span class="legend-item"><i class="dot dot-ch"></i>挑战赛</span>
+        <span class="legend-item"><i class="dot dot-future"></i>未打</span>
+      </div>
+      <div class="card list-card">
+        <div class="card-head"><h2>本周期战绩</h2><span class="list-total" id="list-total"></span></div>
+        <div id="cal-list" class="cal-list"></div>
+      </div>
+    </div>
+
+    <!-- 设置 -->
+    <div id="view-settings" class="view hidden">
+      <div class="card">
+        <div class="card-head"><h2>账号</h2></div>
+        <label class="label">昵称</label>
+        <input id="set-nickname" class="input" type="text" maxlength="12" />
+        <label class="label" style="margin-top:12px">当前巅峰分</label>
+        <input id="set-score" class="input" type="number" inputmode="numeric" />
+        <button id="set-save-btn" class="btn btn-primary btn-block" style="margin-top:16px">保存</button>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2>周期目标</h2></div>
+        <label class="label">本周期望上分</label>
+        <input id="set-weektarget" class="input" type="number" inputmode="numeric" placeholder="留空则不设置目标" />
+        <button id="set-weektarget-btn" class="btn btn-primary btn-block" style="margin-top:16px">保存目标</button>
+        <p class="tip">设置后，首页与日历将实时对比实际累计与期望目标。</p>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2>规则</h2></div>
+        <div class="rule-block">
+          <div class="rule-block-title">系统规则</div>
+          <ul class="rule-list">
+            <li>以周二为周期起点，至周一为一个完整周期。</li>
+            <li>每日对局满 4 把后判定胜者组 / 败者组。</li>
+            <li>前 2 把连续失败，直接判定为败者组。</li>
+            <li>胜者组可继续记录第 5、6……把；败者组建议停止。</li>
+            <li>当日上分，次日建议休息；未上分，次日可继续对局。</li>
+            <li>周五与周六为挑战赛，界面以紫色标识。</li>
+          </ul>
+        </div>
+        <div class="rule-block">
+          <div class="rule-block-title">自定义规则（可选，非强制）</div>
+          <div class="rule-custom-row">
+            <span class="rule-custom-label">连续失败 N 把后提醒停止</span>
+            <input id="set-maxloss" class="input rule-custom-input" type="number" inputmode="numeric" min="1" />
+          </div>
+          <div class="rule-custom-row">
+            <span class="rule-custom-label">连续获胜 N 把后提醒停止</span>
+            <input id="set-maxwin" class="input rule-custom-input" type="number" inputmode="numeric" min="1" />
+          </div>
+          <button id="set-rules-btn" class="btn btn-primary btn-block" style="margin-top:12px">保存自定义规则</button>
+          <p class="tip">达到阈值时会在首页给出提示并锁定保存按钮，可随时选择"忽略并继续"。</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2>数据</h2></div>
+        <div class="set-actions">
+          <button id="export-btn" class="btn btn-ghost">导出数据 (JSON)</button>
+          <button id="import-btn" class="btn btn-ghost">导入数据</button>
+          <input id="import-file" type="file" accept="application/json,.json" class="hidden" />
+          <button id="clear-btn" class="btn btn-danger">清除全部数据</button>
+        </div>
+        <p class="tip">导出为 JSON 备份，更换设备时导入即可恢复。</p>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2>关于</h2></div>
+        <p class="about-text">本工具依据"巅峰赛对局"规则运作：<br>
+          周二为一周期起点，对局满 4 把判定胜者组 / 败者组，前 2 把连败直接判定为败者组；<br>
+          胜者组可继续对局（第 5、6……把）；<br>
+          当日上分次日建议休息，未上分次日可继续；<br>
+          周五与周六为挑战赛，以紫色标识。</p>
+      </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <nav class="tabbar">
+      <button class="tab active" data-view="home"><span class="tab-icon">⚔️</span>今日</button>
+      <button class="tab" data-view="calendar"><span class="tab-icon">📅</span>日历</button>
+      <button class="tab" data-view="settings"><span class="tab-icon">⚙️</span>设置</button>
+    </nav>
+  </div>
+
+  <!-- 通用弹窗 -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-mask"></div>
+    <div class="modal-box">
+      <div class="modal-title" id="modal-title">提示</div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-actions" id="modal-actions"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

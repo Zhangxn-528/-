@@ -1,0 +1,5 @@
+# 只部署 web 目录，其余忽略
+*
+!.gitignore
+!web/
+!web/*
